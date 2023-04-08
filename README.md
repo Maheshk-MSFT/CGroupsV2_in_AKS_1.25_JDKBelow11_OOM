@@ -1,4 +1,4 @@
-# CGroupsV2_in_AKS_1.25_JDKBelow11_OOM
+# CGroupsV2 in K8s 1.25 (AKS) having older verison of JDK showing mem issue 
 Java apps running < JDK ver 11 moving to K8s 1.25 showing memory issue - increased resource consumption and at times OOM issue. 
 
 One of our customer has moved to 1.25 with older SDK noticed their cluster node size has almost doubled to meet the app resource demand otherwise OOM issue(17 nodes to 
