@@ -87,3 +87,71 @@ spec:
       hostIPC: true
       terminationGracePeriodSeconds: 0
 ```
+
+To Revert back: 
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: revert-cgroups
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: revert-cgroups
+  template:
+    metadata:
+      labels:
+        name: revert-cgroups
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cgroup-version
+                    operator: In
+                    values:
+                      - v1
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: revert-cgroups
+          image: mcr.microsoft.com/cbl-mariner/base/core:1.0
+          command:
+            - nsenter
+            - --target
+            - "1"
+            - --mount
+            - --uts
+            - --ipc
+            - --net
+            - --pid
+            - --
+            - bash
+            - -exc
+            - |
+              CGROUP_VERSION=`stat -fc %T /sys/fs/cgroup/`
+              if [ "$CGROUP_VERSION" == "tmpfs" ]; then
+                echo "Using v2, reverting..."
+                sed -i 's/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=0"/GRUB_CMDLINE_LINUX=""/' /etc/default/grub
+                update-grub
+                kubectl --kubeconfig=/var/lib/kubelet/kubeconfig label node ${HOSTNAME,,} cgroup-version-
+                reboot
+              fi
+
+              sleep infinity
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 16Mi
+          securityContext:
+            privileged: true
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      terminationGracePeriodSeconds: 0
+```
