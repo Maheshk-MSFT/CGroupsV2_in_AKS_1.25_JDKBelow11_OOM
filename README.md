@@ -149,6 +149,11 @@ spec:
               cpu: 100m
               memory: 16Mi
           securityContext:
+
+
+```
+#H1 [Aug/11] we have now official page explaining this - https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/aks-increased-memory-usage-cgroup-v2 
+
             privileged: true
       hostNetwork: true
       hostPID: true
