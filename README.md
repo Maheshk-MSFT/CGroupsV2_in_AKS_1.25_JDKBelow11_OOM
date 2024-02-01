@@ -88,7 +88,7 @@ spec:
       terminationGracePeriodSeconds: 0
 ```
 
-To Revert back: 
+To Revert : 
 ```
 apiVersion: apps/v1
 kind: DaemonSet
